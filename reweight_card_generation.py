@@ -29,20 +29,25 @@ aQGC_Pars = {
 
 print "Start printing the reweight card..."
 
+OutPutFile = open("reweight_card.dat","w")
+
+OutPutFile.write("change helicity False\n")
+OutPutFile.write("change rwgt_dir rwgt\n")
+
 for key, item in aQGC_Pars.items():
-    print "\n\n#"+"*"*11," "*3,key," "*3,"*"*11
+    OutPutFile.write("\n\n#"+"*"*11+" "*3+key+" "*3+"*"*11+"\n")
     for parameters in item[1]:
         if item[0] != 11:
             if parameters != 0:
-                print "launch --rwgt_name="+key+"_m"+str(parameters).replace(".","p")
-                print "\tset anoinputs 11 0.000000e+00"
-                print "\tset anoinputs "+str(item[0])+" -"+str(parameters)+"e-12\n"
-            print "launch --rwgt_name="+key+"_"+str(parameters).replace(".","p")
-            print "\tset anoinputs 11 0.000000e+00"
-            print "\tset anoinputs "+str(item[0])+" "+str(parameters)+"e-12\n"
+                OutPutFile.write("\nlaunch --rwgt_name="+key+"_m"+str(parameters).replace(".","p"))
+                OutPutFile.write("\n\tset anoinputs 11 0.000000e+00")
+                OutPutFile.write("\n\tset anoinputs "+str(item[0])+" -"+str(parameters)+"e-12\n")
+            OutPutFile.write("\nlaunch --rwgt_name="+key+"_"+str(parameters).replace(".","p"))
+            OutPutFile.write("\n\tset anoinputs 11 0.000000e+00")
+            OutPutFile.write("\n\tset anoinputs "+str(item[0])+" "+str(parameters)+"e-12\n")
         else:
             if parameters != 0:
-                print "launch --rwgt_name="+key+"_m"+str(parameters).replace(".","p")
-                print "\tset anoinputs "+str(item[0])+" -"+str(parameters)+"e-12\n"
-            print "launch --rwgt_name="+key+"_"+str(parameters).replace(".","p")
-            print "\tset anoinputs "+str(item[0])+" "+str(parameters)+"e-12\n"
+                OutPutFile.write("\nlaunch --rwgt_name="+key+"_m"+str(parameters).replace(".","p"))
+                OutPutFile.write("\n\tset anoinputs "+str(item[0])+" -"+str(parameters)+"e-12\n")
+            OutPutFile.write("\nlaunch --rwgt_name="+key+"_"+str(parameters).replace(".","p"))
+            OutPutFile.write("\n\tset anoinputs "+str(item[0])+" "+str(parameters)+"e-12\n")
