@@ -1,5 +1,6 @@
 import os
 import sys
+import argparse
 
 # Define dict aQGC_Pars that contains info of all aQGC parameter to scan
 # Format of aQGC_Pars dict:
@@ -32,9 +33,10 @@ twod_par_to_scan = [
 		   ]
 
 OutPutFile = open("reweight_card.dat","w")
-input_user= input("Enetr the 1 for 1D or 2 for 2D points and 3 for both:  ")
+input_user= input("Enetr the 1 for 1D or 2 for 2D points:  ")
 if input_user == 1 or input_user == 3:
     print("Printing file for 1D points")
+#    OutPutFile = open("1D_reweight_card.dat","w")
     OutPutFile.write("change helicity False\n")
     OutPutFile.write("change rwgt_dir rwgt\n")
 
@@ -60,6 +62,7 @@ OutPutFile.write("#"*50)
 ###########################################################
 OutPutFile.write("\n\n")
 if input_user == 2 or input_user == 3:
+#    OutPutFile = open("2D_reweight_card.dat","w")
     OutPutFile.write("change helicity False\n")
     OutPutFile.write("change rwgt_dir rwgt\n")
     for i in twod_par_to_scan:
@@ -78,4 +81,5 @@ if input_user == 2 or input_user == 3:
 				    OutPutFile.write("\n\tset anoinputs "+str(item[0])+"  "+sign[0]+str(parameters)+"e-12")
 				    OutPutFile.write("\n\tset anoinputs "+str(item2[0])+"  "+sign[1]+str(parameters2)+"e-12\n")
     print ("*"*5+"Reweight card for 2D points is generated"+"*"*5)
-OutPutFile.close()
+else:
+    OutPutFile.close()
