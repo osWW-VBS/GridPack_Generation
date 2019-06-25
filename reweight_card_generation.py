@@ -1,14 +1,15 @@
 import os
 import sys
+import argparse
 
 # Define dict aQGC_Pars that contains info of all aQGC parameter to scan
 # Format of aQGC_Pars dict:
 # aQGC_Pars = { "aQGC_pars": [ aQGC_par_Ref_Number, [all +ve values to scan including zero] ] }
 aQGC_Pars = {
-    "FS0":[1,  [0.0, 0.2, 0.4]],
-#    "FS0":[1,  [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0, 4, 5, 6, 8, 10, 20, 30, 35, 40, 45, 50]],
-    "FS1":[2,  [0, 0.5, 1.0]],
-#    "FS1":[2,  [0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10, 15, 20, 25, 30, 33, 35]],
+#    "FS0":[1,  [0.0, 0.2, 0.4]],
+    "FS0":[1,  [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0, 4, 5, 6, 8, 10, 20, 30, 35, 40, 45, 50]],
+#    "FS1":[2,  [0, 0.5, 1.0]],
+    "FS1":[2,  [0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10, 15, 20, 25, 30, 33, 35]],
     
     "FM0":[3,  [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 3, 4, 5, 6, 7, 8, 9, 10]],
     "FM1":[4,  [0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8, 2.1, 2.5, 3.0, 5.0, 10, 13, 15, 18, 21, 23.0, 28, 30]],
@@ -30,50 +31,57 @@ aQGC_Pars = {
 }
 twod_par_to_scan = [
 		    ["FS0", "FS1"],
-		    #["FM0" ,"FM1"]
+		    ["FM0" ,"FM1"]
 		   ]
-print "Start printing the reweight card..."
 
-OutPutFile = open("reweight_card.dat","w")
+input_user= input("Enetr the 1 for 1D or 2 for 2D points:  ")
+#if (input_user !=1 or input_user !=2):
+#    print("WrongInput")
+if input_user == 1:
+    print("Printing file for 1D points")
+    OutPutFile = open("1D_reweight_card.dat","w")
+    OutPutFile.write("change helicity False\n")
+    OutPutFile.write("change rwgt_dir rwgt\n")
 
-OutPutFile.write("change helicity False\n")
-OutPutFile.write("change rwgt_dir rwgt\n")
+    for key, item in aQGC_Pars.items():
+	OutPutFile.write("\n\n#"+"*"*11+" "*3+key+" "*3+"*"*11+"\n")
+	for parameters in item[1]:
+	    if item[0] != 11:
+		if parameters != 0:
+		    OutPutFile.write("\nlaunch --rwgt_name="+key+"_m"+str(parameters).replace(".","p"))
+		    OutPutFile.write("\n\tset anoinputs 11 0.000000e+00")
+		    OutPutFile.write("\n\tset anoinputs "+str(item[0])+" -"+str(parameters)+"e-12\n")
+		OutPutFile.write("\nlaunch --rwgt_name="+key+"_"+str(parameters).replace(".","p"))
+		OutPutFile.write("\n\tset anoinputs 11 0.000000e+00")
+		OutPutFile.write("\n\tset anoinputs "+str(item[0])+" "+str(parameters)+"e-12\n")
+	    else:
+		if parameters != 0:
+		    OutPutFile.write("\nlaunch --rwgt_name="+key+"_m"+str(parameters).replace(".","p"))
+		    OutPutFile.write("\n\tset anoinputs "+str(item[0])+" -"+str(parameters)+"e-12\n")
+		OutPutFile.write("\nlaunch --rwgt_name="+key+"_"+str(parameters).replace(".","p"))
+		OutPutFile.write("\n\tset anoinputs "+str(item[0])+" "+str(parameters)+"e-12\n")
+    print ("*"*5+"Reweight card for 1D points is generated"+"*"*5)
 
-for i in twod_par_to_scan:
+###########################################################
+elif input_user == 2:
+    OutPutFile = open("2D_reweight_card.dat","w")
+    OutPutFile.write("change helicity False\n")
+    OutPutFile.write("change rwgt_dir rwgt\n")
+    for i in twod_par_to_scan:
+	OutPutFile.write("\n\n#"+"*"*11+" "*3+str(i)+" "*3+"*"*11+"\n")
 	for key, item in aQGC_Pars.items():
-	#    OutPutFile.write("\n\n#"+"*"*11+" "*3+key+" "*3+"*"*11+"\n")
-	    print("\n\n#"+"*"*11+" "*3+key+" "*3+"*"*11+"\n")
 	    for parameters in item[1]:
-	        if parameters ==0: continue
-                for key2, item2 in aQGC_Pars.items():
-                        for parameters2 in item2[1]:
-				if parameters2 ==0: continue
-				if (key==i[0] and key2==i[1]):
-        				if item[0] != 11 and item2[0] != 11:
-						print("parem1 = "+str(parameters)+"param2 = "+str(parameters2))
-						print "parem1 = ", parameters, "\tparam2 = ",parameters2
-						#print('parem1 = %0.15f,   param2 = %0.15f'%(parameters,parameters2))
-            					if int(parameters) != 0 and int(parameters2) != 0:
-#               		 OutPutFile.write("\nlaunch --rwgt_name="+key+"_m"+str(parameters).replace(".","p"))
-							print "Ramkrishna"
-            	    					print("\nlaunch --rwgt_name="+key+"_m"+str(parameters).replace(".","p")+"_"+key2+"_m"+str(parameters2).replace(".","p"))
-#            	    					print("\nlaunch --rwgt_name="+key2+"_m"+str(parameters2).replace(".","p"))
-#                		OutPutFile.write("\n\tset anoinputs 11 0.000000e+00")
-                					print("\n\tset anoinputs 11 0.000000e+00")
-#                		OutPutFile.write("\n\tset anoinputs "+str(item[0])+" -"+str(parameters)+"e-12\n")
-                					print("\n\tset anoinputs "+str(item[0])+" -"+str(parameters)+"e-12\n")
-                					print("\n\tset anoinputs "+str(item2[0])+" -"+str(parameters2)+"e-12\n")
-#            		OutPutFile.write("\nlaunch --rwgt_name="+key+"_"+str(parameters).replace(".","p"))
-            					print("\nlaunch --rwgt_name="+key+"_"+str(parameters).replace(".","p")+"_"+key2+"_"+str(parameters2).replace(".","p"))
-#            					print("\nlaunch --rwgt_name="+key+"_"+str(parameters2).replace(".","p"))
-#            		OutPutFile.write("\n\tset anoinputs 11 0.000000e+00")
-            					print("\tset anoinputs 11 0.000000e+00")
-#            		OutPutFile.write("\n\tset anoinputs "+str(item[0])+" "+str(parameters)+"e-12\n")
-            					print("\tset anoinputs "+str(item[0])+" "+str(parameters)+"e-12")
-            					print("\n\tset anoinputs "+str(item2[0])+" "+str(parameters2)+"e-12\n")
-#        else:
-#            if parameters != 0:
-#                OutPutFile.write("\nlaunch --rwgt_name="+key+"_m"+str(parameters).replace(".","p"))
-#                OutPutFile.write("\n\tset anoinputs "+str(item[0])+" -"+str(parameters)+"e-12\n")
-#		OutPutFile.write("\nlaunch --rwgt_name="+key+"_"+str(parameters).replace(".","p"))
-#            OutPutFile.write("\n\tset anoinputs "+str(item[0])+" "+str(parameters)+"e-12\n")
+		if parameters ==0: continue
+		for key2, item2 in aQGC_Pars.items():
+		    for parameters2 in item2[1]:
+			if parameters2 ==0: continue
+			if (key==i[0] and key2==i[1]):
+			    if item[0] != 11 and item2[0] != 11:
+				for sign in [["",""], ["", "-"], ["-", ""], ["-","-"]]:
+				    OutPutFile.write("\nlaunch --rwgt_name="+key+"_"+sign[0].replace("-","m")+str(parameters).replace(".","p")+"_"+key2+"_"+sign[1].replace("-","m")+str(parameters2).replace(".","p"))
+				    OutPutFile.write("\n\n\tset anoinputs 11 0.000000e+00")
+				    OutPutFile.write("\n\tset anoinputs "+str(item[0])+"  "+sign[0]+str(parameters)+"e-12")
+				    OutPutFile.write("\n\tset anoinputs "+str(item2[0])+"  "+sign[1]+str(parameters2)+"e-12\n")
+    print ("*"*5+"Reweight card for 2D points is generated"+"*"*5)
+else:
+    print("Wrong Input: Please enter 1 for 1D and 2 for 2D points")
